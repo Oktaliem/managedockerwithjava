@@ -106,7 +106,6 @@ public class ManageDockerUnitTest {
         System.out.println(inspect.getCreated());
         System.out.println(inspect.getDriver());
         System.out.println(inspect.getExecDriver());
-//        System.out.println(inspect.getGraphDriver());
         System.out.println(inspect.getHostConfig());
         System.out.println(inspect.getHostnamePath());
         System.out.println(inspect.getHostsPath());
@@ -114,9 +113,7 @@ public class ManageDockerUnitTest {
         System.out.println(inspect.getImageId());
         System.out.println(inspect.getLogPath());
         System.out.println(inspect.getName());
-//        System.out.println(inspect.getNode());
         System.out.println(inspect.getPath());
-//        System.out.println(inspect.getPlatform());
         System.out.println(inspect.getResolvConfPath());
         System.out.println(inspect.getRestartCount());
         System.out.println(inspect.getState());
@@ -149,7 +146,7 @@ public class ManageDockerUnitTest {
         for (Container container : containers) {
             if (container.getImage().equals(image)) {
                 System.out.println("Id-nya adalah:" + container.getId());
-                dockerClient.startContainerCmd(container.getId());
+                dockerClient.startContainerCmd(container.getId()).exec();
                 System.out.println("Start Container with Id: " + container.getId());
                 break;
             } else {
@@ -159,10 +156,12 @@ public class ManageDockerUnitTest {
     }
 
     @Test
-    public void createZaleniumContainer() throws InterruptedException {
+    public void createZaleniumContainer(){
+        String containerName = "zalenium";
         CreateContainerResponse container
                 = dockerClient.createContainerCmd("dosel/zalenium")
-                .withName("zalenium")
+                .withName(containerName)
+                .withPortBindings(PortBinding.parse("4444:4444"))
                 .withExposedPorts(ExposedPort.tcp(4444),ExposedPort.tcp(4444))
                 .withBinds(Bind.parse("/tmp/videos:/home/seluser/videos"),Bind.parse("/var/run/docker.sock:/var/run/docker.sock"))
                 .withPrivileged(true)
@@ -170,9 +169,7 @@ public class ManageDockerUnitTest {
                 .withAttachStdout(true).withAttachStderr(true)
                 .withCmd("start")
                 .exec();
-        System.out.println(container.getId());
-        Thread.sleep(5000);
-        dockerClient.startContainerCmd(container.getId());
+        dockerClient.startContainerCmd(containerName).exec();
     }
 
 
