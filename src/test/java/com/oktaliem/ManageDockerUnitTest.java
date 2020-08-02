@@ -3,18 +3,14 @@ package com.oktaliem;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerResponse;
-import com.github.dockerjava.api.model.Bind;
-import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.Image;
-import com.github.dockerjava.api.model.PortBinding;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DockerClientBuilder;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 
 public class ManageDockerUnitTest {
@@ -95,6 +91,39 @@ public class ManageDockerUnitTest {
     }
 
     @Test
+    public void inspectContainer() {
+        String containerId = "c3ee94af4113e97a5c00344b6157c3d8a12cf53d9133da3452206fbd00a1f32d";
+        InspectContainerResponse inspect = dockerClient.inspectContainerCmd(containerId).exec();
+        System.out.println(Arrays.toString(inspect.getArgs()));
+        System.out.println(inspect.getMounts());
+        System.out.println(Arrays.toString(inspect.getVolumes()));
+        System.out.println(inspect.getExecIds());
+        System.out.println(inspect.getMountLabel());
+        System.out.println(inspect.getNetworkSettings());
+        System.out.println(inspect.getProcessLabel());
+        System.out.println(inspect.getSizeRootFs());
+        System.out.println(inspect.getConfig());
+        System.out.println(inspect.getCreated());
+        System.out.println(inspect.getDriver());
+        System.out.println(inspect.getExecDriver());
+//        System.out.println(inspect.getGraphDriver());
+        System.out.println(inspect.getHostConfig());
+        System.out.println(inspect.getHostnamePath());
+        System.out.println(inspect.getHostsPath());
+        System.out.println(inspect.getId());
+        System.out.println(inspect.getImageId());
+        System.out.println(inspect.getLogPath());
+        System.out.println(inspect.getName());
+//        System.out.println(inspect.getNode());
+        System.out.println(inspect.getPath());
+//        System.out.println(inspect.getPlatform());
+        System.out.println(inspect.getResolvConfPath());
+        System.out.println(inspect.getRestartCount());
+        System.out.println(inspect.getState());
+        System.out.println(Arrays.toString(inspect.getVolumesRW()));
+    }
+
+    @Test
     public void stopContainer() {
         String image = "portainer/portainer";
         List<Container> containers = dockerClient.listContainersCmd().exec();
@@ -120,7 +149,7 @@ public class ManageDockerUnitTest {
         for (Container container : containers) {
             if (container.getImage().equals(image)) {
                 System.out.println("Id-nya adalah:" + container.getId());
-                dockerClient.startContainerCmd(container.getId()).exec();
+                dockerClient.startContainerCmd(container.getId());
                 System.out.println("Start Container with Id: " + container.getId());
                 break;
             } else {
@@ -130,18 +159,20 @@ public class ManageDockerUnitTest {
     }
 
     @Test
-    public void createZaleniumContainer() {
-        CreateContainerResponse container = dockerClient.createContainerCmd("dosel/zalenium")
-                                                        .withCmd("--rm")
-                                                        .withCmd("--it")
-                                                        .withCmd("-d")
-                                                        .withName("zalenium")
-                                                        .withPortBindings(PortBinding.parse("4444:4444"))
-                                                        .withBinds(Bind.parse("/var/run/docker.sock:/var/run/docker.sock"))
-                                                        .withBinds(Bind.parse("/tmp/videos:/home/seluser/videos"))
-                                                        .withPrivileged(true).exec();
+    public void createZaleniumContainer() throws InterruptedException {
+        CreateContainerResponse container
+                = dockerClient.createContainerCmd("dosel/zalenium")
+                .withName("zalenium")
+                .withExposedPorts(ExposedPort.tcp(4444),ExposedPort.tcp(4444))
+                .withBinds(Bind.parse("/tmp/videos:/home/seluser/videos"),Bind.parse("/var/run/docker.sock:/var/run/docker.sock"))
+                .withPrivileged(true)
+                .withRestartPolicy(RestartPolicy.noRestart())
+                .withAttachStdout(true).withAttachStderr(true)
+                .withCmd("start")
+                .exec();
         System.out.println(container.getId());
-        dockerClient.startContainerCmd(container.getId()).exec();
+        Thread.sleep(5000);
+        dockerClient.startContainerCmd(container.getId());
     }
 
 
