@@ -6,11 +6,11 @@ import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DockerClientBuilder;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
 
 
 public class ManageDockerUnitTest {
@@ -23,6 +23,10 @@ public class ManageDockerUnitTest {
 
     @Test
     public void getListOfRunningDockerContainers() {
+        /*
+            This java code is equal with:
+            $ docker ps
+         */
         List<Container> containers = dockerClient.listContainersCmd().exec();
         for (Container container : containers) {
             System.out.println("===============START================");
@@ -47,6 +51,10 @@ public class ManageDockerUnitTest {
 
     @Test
     public void getListOfExitedDockerContainers() {
+        /*
+            This java code is equal with:
+            $ docker ps -a
+         */
         List<Container> containers = dockerClient.listContainersCmd()
                                                   .withShowSize(true)
                                                   .withShowAll(true)
@@ -75,6 +83,10 @@ public class ManageDockerUnitTest {
 
     @Test
     public void checkListOfDockerImages() {
+        /*
+        This java code is equal with:
+        $ docker images
+        */
         List<Image> images = dockerClient.listImagesCmd().exec();
         for (Image image : images) {
             System.out.println("===============START================");
@@ -92,6 +104,10 @@ public class ManageDockerUnitTest {
 
     @Test
     public void inspectContainer() {
+        /*
+        This java code is equal with:
+        $ docker inspect ${docker_id}
+        */
         String containerId = "c3ee94af4113e97a5c00344b6157c3d8a12cf53d9133da3452206fbd00a1f32d";
         InspectContainerResponse inspect = dockerClient.inspectContainerCmd(containerId).exec();
         System.out.println(Arrays.toString(inspect.getArgs()));
@@ -122,6 +138,10 @@ public class ManageDockerUnitTest {
 
     @Test
     public void stopContainer() {
+        /*
+        This java code is equal with:
+        $ docker stop ${container_id}/${container_name}
+        */
         String image = "portainer/portainer";
         List<Container> containers = dockerClient.listContainersCmd().exec();
         for (Container value : containers) {
@@ -137,6 +157,10 @@ public class ManageDockerUnitTest {
 
     @Test
     public void startContainer() {
+        /*
+        This java code is equal with:
+        $ docker start ${container_id}/${container_name}
+        */
         String image = "portainer/portainer";
         List<Container> containers = dockerClient.listContainersCmd()
                 .withShowSize(true)
@@ -157,6 +181,13 @@ public class ManageDockerUnitTest {
 
     @Test
     public void createZaleniumContainer(){
+        /*
+        This java code is equal with:
+        $ docker run --rm -ti --name zalenium -p 4444:4444 \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -v /tmp/videos:/home/seluser/videos \
+          --privileged dosel/zalenium start
+        */
         String containerName = "zalenium";
         CreateContainerResponse container
                 = dockerClient.createContainerCmd("dosel/zalenium")
@@ -170,11 +201,5 @@ public class ManageDockerUnitTest {
                 .withCmd("start")
                 .exec();
         dockerClient.startContainerCmd(containerName).exec();
-    }
-
-
-    @AfterClass
-    public void stopDocker() {
-
     }
 }
