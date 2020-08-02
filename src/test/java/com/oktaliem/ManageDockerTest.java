@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class ManageDockerUnitTest {
+public class ManageDockerTest {
     private static DockerClient dockerClient;
 
     @BeforeClass
@@ -24,7 +24,7 @@ public class ManageDockerUnitTest {
     @Test
     public void getListOfRunningDockerContainers() {
         /*
-            This java code is equal with:
+            This java code is equal to:
             $ docker ps
          */
         List<Container> containers = dockerClient.listContainersCmd().exec();
@@ -52,7 +52,7 @@ public class ManageDockerUnitTest {
     @Test
     public void getListOfExitedDockerContainers() {
         /*
-            This java code is equal with:
+            This java code is equal to:
             $ docker ps -a
          */
         List<Container> containers = dockerClient.listContainersCmd()
@@ -84,7 +84,7 @@ public class ManageDockerUnitTest {
     @Test
     public void checkListOfDockerImages() {
         /*
-        This java code is equal with:
+        This java code is equal to:
         $ docker images
         */
         List<Image> images = dockerClient.listImagesCmd().exec();
@@ -105,7 +105,7 @@ public class ManageDockerUnitTest {
     @Test
     public void inspectContainer() {
         /*
-        This java code is equal with:
+        This java code is equal to:
         $ docker inspect ${docker_id}
         */
         String containerId = "c3ee94af4113e97a5c00344b6157c3d8a12cf53d9133da3452206fbd00a1f32d";
@@ -139,7 +139,7 @@ public class ManageDockerUnitTest {
     @Test
     public void stopContainer() {
         /*
-        This java code is equal with:
+        This java code is equal to:
         $ docker stop ${container_id}/${container_name}
         */
         String image = "portainer/portainer";
@@ -158,7 +158,7 @@ public class ManageDockerUnitTest {
     @Test
     public void startContainer() {
         /*
-        This java code is equal with:
+        This java code is equal to:
         $ docker start ${container_id}/${container_name}
         */
         String image = "portainer/portainer";
@@ -182,15 +182,14 @@ public class ManageDockerUnitTest {
     @Test
     public void createZaleniumContainer(){
         /*
-        This java code is equal with:
+        This java code is equal to:
         $ docker run --rm -ti --name zalenium -p 4444:4444 \
           -v /var/run/docker.sock:/var/run/docker.sock \
           -v /tmp/videos:/home/seluser/videos \
           --privileged dosel/zalenium start
         */
         String containerName = "zalenium";
-        CreateContainerResponse container
-                = dockerClient.createContainerCmd("dosel/zalenium")
+        CreateContainerResponse container = dockerClient.createContainerCmd("dosel/zalenium")
                 .withName(containerName)
                 .withPortBindings(PortBinding.parse("4444:4444"))
                 .withExposedPorts(ExposedPort.tcp(4444),ExposedPort.tcp(4444))
@@ -200,6 +199,7 @@ public class ManageDockerUnitTest {
                 .withAttachStdout(true).withAttachStderr(true)
                 .withCmd("start")
                 .exec();
+        System.out.println(container.getId());
         dockerClient.startContainerCmd(containerName).exec();
     }
 }
