@@ -10,7 +10,7 @@
 - Inspect Cointainer
 - Stop Container
 - Start Container
-- Set up Zalenium (Selenium in Docker) with docker-java
+- Set up Zalenium (Selenium Grid in Docker) with docker-java
 
 # Reference
 - https://github.com/docker-java/docker-java
