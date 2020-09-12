@@ -9,6 +9,9 @@ import com.github.dockerjava.core.DockerClientBuilder;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 
@@ -56,10 +59,10 @@ public class ManageDockerTest {
             $ docker ps -a
          */
         List<Container> containers = dockerClient.listContainersCmd()
-                                                  .withShowSize(true)
-                                                  .withShowAll(true)
-                                                  .withStatusFilter("exited")
-                                                  .exec();
+                .withShowSize(true)
+                .withShowAll(true)
+                .withStatusFilter("exited")
+                .exec();
         for (Container container : containers) {
             System.out.println("===============START================");
             System.out.println("All information: " + container);
@@ -180,7 +183,7 @@ public class ManageDockerTest {
     }
 
     @Test
-    public void createZaleniumContainer(){
+    public void createZaleniumContainer() {
         /*
         This java code is equal to:
         $ docker run --rm -ti --name zalenium -p 4444:4444 \
@@ -192,8 +195,8 @@ public class ManageDockerTest {
         CreateContainerResponse container = dockerClient.createContainerCmd("dosel/zalenium")
                 .withName(containerName)
                 .withPortBindings(PortBinding.parse("4444:4444"))
-                .withExposedPorts(ExposedPort.tcp(4444),ExposedPort.tcp(4444))
-                .withBinds(Bind.parse("/tmp/videos:/home/seluser/videos"),Bind.parse("/var/run/docker.sock:/var/run/docker.sock"))
+                .withExposedPorts(ExposedPort.tcp(4444), ExposedPort.tcp(4444))
+                .withBinds(Bind.parse("/tmp/videos:/home/seluser/videos"), Bind.parse("/var/run/docker.sock:/var/run/docker.sock"))
                 .withPrivileged(true)
                 .withRestartPolicy(RestartPolicy.noRestart())
                 .withAttachStdout(true).withAttachStderr(true)
@@ -202,4 +205,47 @@ public class ManageDockerTest {
         System.out.println(container.getId());
         dockerClient.startContainerCmd(containerName).exec();
     }
+
+    @Test
+    public void runZaleniumContainerWithDockerCompose() throws IOException {
+        /*
+        This java code is equal to:
+        $ docker-compose up // run docker compose and print to console
+         */
+        Process process = Runtime.getRuntime().exec("docker-compose -f " + System.getProperty("user.dir") + "/docker-compose.yml up");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line = "";
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+    }
+
+    @Test
+    public void runZaleniumContainerWithDockerComposeInBackground() throws IOException {
+        /*
+        This java code is equal to:
+        $ docker-compose up -d // run docker compose in background
+         */
+        Process process = Runtime.getRuntime().exec("docker-compose -f " + System.getProperty("user.dir") + "/docker-compose.yml up -d");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line = "";
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+    }
+
+    @Test
+    public void stopZaleniumContainerWithDockerCompose() throws IOException {
+        /*
+        This java code is equal to:
+        $ docker-compose up down // stop running docker compose
+         */
+        Process process = Runtime.getRuntime().exec("docker-compose -f " + System.getProperty("user.dir") + "/docker-compose.yml down");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        String line = "";
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+    }
+
 }
